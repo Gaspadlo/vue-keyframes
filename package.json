@@ -1,0 +1,41 @@
+{
+  "name": "vue-keyframes",
+  "version": "0.1.0",
+  "description": "Vue.js plugin for a simple on-scroll elements animated transitions",
+  "homepage": "https://github.com/Gaspadlo/vue-keyframes",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Gaspadlo/vue-keyframes.git"
+  },
+  "paths": {
+    "source": "src",
+    "destination": "dist"
+  },
+  "main": "dist/index.esm.js",
+  "browser": "dist/index.umd.min.js",
+  "unpkg": "dist/index.umd.min.js",
+  "jsdelivr": "dist/index.umd.min.js",
+  "sideEffects": false,
+  "scripts": {
+    "build": "npm run build-dev && npm run build-umd:prod && npm run build-cjs:prod",
+    "build-dev": "babel src -d dist --out-file-extension .esm.js",
+    "build-umd:prod": "cross-env NODE_ENV=production TARGET=umd FILE_NAME=vue.keyframes webpack",
+    "build-cjs:prod": "cross-env NODE_ENV=production TARGET=commonjs FILE_NAME=vue.keyframes webpack"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.13",
+    "@babel/core": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
+    "babel-loader": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "d3-interpolate": "^2.0.1",
+    "webpack": "^5.21.2",
+    "webpack-cli": "^4.5.0"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  }
+}
