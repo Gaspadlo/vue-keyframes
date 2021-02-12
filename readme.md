@@ -24,7 +24,7 @@ index.html
 		    <img data-keyframes='{"0":{"opacity":0},"100":{"opacity":1}}'>
 
 		    <!-- or via dynamic values -->
-		    <img :data-keyframe="JSON.stringify(this.sampleKeyframes)">
+		    <img :data-keyframe="JSON.stringify(sampleKeyFrames)">
 	    </div>
     </div>
     
@@ -35,7 +35,7 @@ index.html
 		    el:  '#vue-instance',
 		    data() {
 			    return {
-				    sampleKeyframes: {
+				    sampleKeyFrames: {
 					    0: { opacity: 0 },
 					    100: { opacity: 1 }
 				    }
