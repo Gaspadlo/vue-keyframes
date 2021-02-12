@@ -1,6 +1,6 @@
 {
-  "name": "vue-keyframes",
-  "version": "0.1.0",
+  "name": "vue-style-keyframes",
+  "version": "0.1.1",
   "description": "Vue.js plugin for a simple on-scroll elements animated transitions",
   "homepage": "https://github.com/Gaspadlo/vue-keyframes",
   "license": "BSD-3-Clause",
