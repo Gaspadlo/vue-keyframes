@@ -29,7 +29,6 @@
     "@babel/preset-env": "^7.12.13",
     "babel-loader": "^8.2.2",
     "cross-env": "^7.0.3",
-    "d3-interpolate": "^2.0.1",
     "webpack": "^5.21.2",
     "webpack-cli": "^4.5.0"
   },
@@ -37,5 +36,8 @@
     "presets": [
       "@babel/preset-env"
     ]
+  },
+  "dependencies": {
+    "d3-interpolate": "2.0.1"
   }
 }
