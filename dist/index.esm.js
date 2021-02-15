@@ -43,20 +43,25 @@ var defaultOptions = {
 function install(Vue) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   Vue.directive(_objectSpread(_objectSpread({}, defaultOptions), options).directive, {
-    inserted: function inserted(el, binding, vnode) {
-      updateInstance(el, binding, vnode);
-    },
-    componentUpdated: function componentUpdated(el, binding, vnode) {
-      if (vnode.componentOptions) {
-        vnode.componentOptions.scrollContext.removeEventListener('scroll', vnode.updateElementStyles);
-      }
+    inserted: updateInstance,
+    mounted: updateInstance,
+    componentUpdated: componentUpdated,
+    updated: componentUpdated,
+    unbind: unmounted,
+    unmounted: unmounted
+  });
 
-      updateInstance(el, binding, vnode);
-    },
-    unbind: function unbind(el, binding, vnode) {
+  function unmounted(el, binding, vnode) {
+    vnode.componentOptions.scrollContext.removeEventListener('scroll', vnode.updateElementStyles);
+  }
+
+  function componentUpdated(el, binding, vnode) {
+    if (vnode.componentOptions) {
       vnode.componentOptions.scrollContext.removeEventListener('scroll', vnode.updateElementStyles);
     }
-  });
+
+    updateInstance(el, binding, vnode);
+  }
 
   function updateInstance(el, binding, vnode) {
     vnode.componentOptions = _objectSpread(_objectSpread({}, defaultOptions), binding.value);
@@ -68,7 +73,7 @@ function install(Vue) {
     };
 
     vnode.componentOptions.scrollContext.addEventListener('scroll', vnode.updateElementStyles);
-    Vue.nextTick(vnode.updateElementStyles);
+    dataMutationDebounce(vnode.updateElementStyles);
   }
 
   function updateElementsList(opt, vnode, nodeList) {
@@ -82,7 +87,7 @@ function install(Vue) {
       vnode._keyFramesElements = [];
     }
 
-    Vue.nextTick(function () {
+    dataMutationDebounce(function () {
       if (nodeList instanceof NodeList) {
         var _iterator = _createForOfIteratorHelper(nodeList),
             _step;
@@ -134,7 +139,7 @@ function updateStyles(opt, vnode, wrapper, nodes) {
     return;
   }
 
-  window.requestAnimationFrame(function () {
+  dataMutationDebounce(function () {
     vnode._keyFramesUpdater.lastTime = thisTime;
     var wrapperRect = wrapper.getBoundingClientRect();
     var offset = opt.pxOffset + wrapperRect.height * opt.ratioOffset + document.documentElement.clientHeight * (opt.screenOffset / 100);
@@ -205,4 +210,14 @@ function updateStyles(opt, vnode, wrapper, nodes) {
 
 function ratioMinMax(value) {
   return Math.min(1, Math.max(0, value));
+}
+
+function dataMutationDebounce(cb) {
+  var _window;
+
+  if ((_window = window) !== null && _window !== void 0 && _window.requestAnimationFrame) {
+    return window.requestAnimationFrame(cb);
+  }
+
+  return setTimeout(cb, 1);
 }

@@ -14,20 +14,26 @@ const defaultOptions = {
 };
 
 export default function install(Vue, options = {}) {
-    Vue.directive({ ...defaultOptions, ...options }.directive, {
-        inserted(el, binding, vnode) {
-            updateInstance(el, binding, vnode);
-        },
-        componentUpdated(el, binding, vnode) {
-            if (vnode.componentOptions) {
-                vnode.componentOptions.scrollContext.removeEventListener('scroll', vnode.updateElementStyles);
-            }
-            updateInstance(el, binding, vnode);
-        },
-        unbind(el, binding, vnode) {
-            vnode.componentOptions.scrollContext.removeEventListener('scroll', vnode.updateElementStyles);
-        }
+
+  Vue.directive({ ...defaultOptions, ...options }.directive, {
+        inserted: updateInstance,
+        mounted: updateInstance,
+        componentUpdated: componentUpdated,
+        updated: componentUpdated,
+        unbind: unmounted,
+        unmounted: unmounted,
     });
+
+    function unmounted(el, binding, vnode) {
+      vnode.componentOptions.scrollContext.removeEventListener('scroll', vnode.updateElementStyles);
+    }
+
+    function componentUpdated (el, binding, vnode) {
+      if (vnode.componentOptions) {
+        vnode.componentOptions.scrollContext.removeEventListener('scroll', vnode.updateElementStyles);
+      }
+      updateInstance(el, binding, vnode);
+    }
 
     function updateInstance(el, binding, vnode) {
         vnode.componentOptions = {...defaultOptions, ...binding.value};
@@ -35,7 +41,7 @@ export default function install(Vue, options = {}) {
         updateElementsList(opt, vnode, el.querySelectorAll(`[${opt.keyframesAttrName}]`));
         vnode.updateElementStyles = () => updateStyles(opt, vnode, el, vnode._keyFramesElements);
         vnode.componentOptions.scrollContext.addEventListener('scroll', vnode.updateElementStyles);
-        Vue.nextTick(vnode.updateElementStyles);
+        dataMutationDebounce(vnode.updateElementStyles);
     }
 
     function updateElementsList(opt, vnode, nodeList) {
@@ -48,7 +54,7 @@ export default function install(Vue, options = {}) {
         } else {
             vnode._keyFramesElements = [];
         }
-        Vue.nextTick(() => {
+        dataMutationDebounce(() => {
             if (nodeList instanceof NodeList) {
                 for (const node of nodeList) {
                     if (node.hasAttribute(opt.keyframesAttrName)) {
@@ -81,7 +87,7 @@ function updateStyles(opt, vnode, wrapper, nodes) {
         vnode._keyFramesUpdater.timeout = setTimeout(() => updateStyles(opt, vnode, wrapper, nodes), opt.updateEveryMS);
         return
     }
-    window.requestAnimationFrame(() => {
+    dataMutationDebounce(() => {
         vnode._keyFramesUpdater.lastTime = thisTime;
         const wrapperRect = wrapper.getBoundingClientRect();
         const offset = opt.pxOffset +
@@ -131,4 +137,11 @@ function updateStyles(opt, vnode, wrapper, nodes) {
 
 function ratioMinMax(value) {
     return Math.min(1, Math.max(0, value));
+}
+
+function dataMutationDebounce(cb) {
+    if (window?.requestAnimationFrame) {
+        return window.requestAnimationFrame(cb);
+    }
+    return setTimeout(cb, 1);
 }
